@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Finder with Area Name</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #output {
+      margin-top: 25px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      button {
+        width: 100%;
+        font-size: 18px;
+      }
+      #output {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>📍 Location Finder with Area Name</h1>
+  <button onclick="getLocation()">Get My Location</button>
+  <div id="output"></div>
+
+  <script>
+    const API_KEY = "e02f4b4d65f24446af68b2e4a8969c72"; // Replace with your OpenCage API key
+
+    function getLocation() {
+      const output = document.getElementById("output");
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          // Show basic coordinates first
+          output.innerHTML = `
+            <p><strong>Latitude:</strong> ${lat}</p>
+            <p><strong>Longitude:</strong> ${lon}</p>
+          `;
+
+          // Reverse geocoding API call
+          try {
+            const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lon}&key=${API_KEY}`);
+            const data = await response.json();
+            const location = data.results[0].formatted;
+
+            output.innerHTML += `
+              <p><strong>Location:</strong> ${location}</p>
+              <p><a href="https://maps.google.com/?q=${lat},${lon}" target="_blank">View on Google Maps</a></p>
+            `;
+          } catch (error) {
+            output.innerHTML += `<p>❌ Error fetching area name.</p>`;
+          }
+
+        }, (error) => {
+          output.innerHTML = "❌ Location access denied or unavailable.";
+        });
+      } else {
+        output.innerHTML = "❌ Geolocation not supported.";
+      }
+    }
+  </script>
+</body>
+</html>
